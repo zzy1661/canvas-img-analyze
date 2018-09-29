@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>canvas分析图片拖动验证码</title>
+		<style type="text/css">
+			#color {
+				width: 150px;
+				height: 150px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="MyCanvas">
+			
+		</canvas>
+		
+		<div id="color"></div>
+		<hr />		
+		<script type="text/javascript">
+			(function() {
+				var xArr = [];
+				var c = document.getElementById("MyCanvas"),
+					ctx = c.getContext("2d"),
+					image = new Image();
+				image.src = "./img/img3.png";
+				image.onload = function() {
+					c.width = image.width;
+					c.height = image.height;
+					ctx.drawImage(this, 0, 0);
+					
+					for(var row = 0; row < c.height; row++) {
+						for(var col = 1; col < c.width; col++) {
+							var pixel1 = ctx.getImageData(col, row, 1, 1).data;
+							var hsl1 = rgbToHsl(...pixel1);
+							var pixel2 = ctx.getImageData(col-1, row, 1, 1).data;
+							var hsl2 = rgbToHsl(...pixel2);
+							if(Math.abs(parseFloat(hsl2[2])-parseFloat(hsl1[2]))>20) {
+								xArr.push(col);
+							}
+						}
+					}
+					xArr.sort((a,b)=>a-b);
+					console.log(xArr)
+					for(var i=0;i<xArr.length;i++) {
+						if(xArr.filter(item => item==xArr[i]).length>5) {
+							console.log(xArr[i]);
+							break;
+						}
+					}
+				}
+		
+				c.onclick = function(e) {
+					var x = e.clientX,
+						y = e.clientY,
+						x1 = this.offsetLeft,
+						y1 = this.offsetTop,
+						nowx = x - x1,
+						nowy = y - y1;
+					var imagedates = ctx.getImageData(nowx, nowy, 1, 1);
+					var pixel = imagedates.data;
+					var hsl = rgbToHsl(...pixel)				
+					document.getElementById("color").innerHTML = hsl;
+					//文字颜色反色
+					document.getElementById("color").style["color"] =
+						"rgb(" + pixel.slice(0,3).map(item=>255-item).join() + ")";
+					document.getElementById("color").style["background-color"] =
+						"hsl(" + hsl.join() + ")";
+				}
+				
+				function rgbToHsl(r, g, b) {
+					r /= 255, g /= 255, b /= 255;
+					var max = Math.max(r, g, b),
+						min = Math.min(r, g, b);
+					var h, s, l = (max + min) / 2;
+
+					if(max == min) {
+						h = s = 0; // achromatic
+					} else {
+						var d = max - min;
+						s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+						switch(max) {
+							case r:
+								h = (g - b) / d + (g < b ? 6 : 0);
+								break;
+							case g:
+								h = (b - r) / d + 2;
+								break;
+							case b:
+								h = (r - g) / d + 4;
+								break;
+						}
+						h /= 6;
+					}
+					return [Math.round(h*360), (s*100).toFixed(2)+'%', (l*100).toFixed(2)+'%'];
+				}
+			})()
+		</script>
+		<!--<script type="text/javascript">
+			//网页测试代码
+			function getX(src) {
+				var xArr = [];
+				var c = document.createElement('canvas'),
+					ctx = c.getContext("2d"),
+					image = new Image();
+					image.src = src;
+					image.onload = function() {
+						c.width = image.width;
+						c.height = image.height;
+						ctx.drawImage(this, 0, 0);
+						
+						for(var row = 0; row < c.height; row++) {
+							for(var col = 1; col < c.width; col++) {
+								var pixel1 = ctx.getImageData(col, row, 1, 1).data;
+								var hsl1 = rgbToHsl(...pixel1);
+								var pixel2 = ctx.getImageData(col-1, row, 1, 1).data;
+								var hsl2 = rgbToHsl(...pixel2);
+								
+								if(Math.abs(parseFloat(hsl2[2])-parseFloat(hsl1[2]))>20) {
+									xArr.push(col);
+								}
+							}
+						}
+						xArr.sort((a,b)=>a-b);
+						for(var i=0;i<xArr.length;i++) {
+							if(xArr.filter(item => item==xArr[i]).length>5) {
+								console.log(xArr[i]);
+								break;
+							}
+						}
+					}
+				function rgbToHsl(r, g, b) {
+					r /= 255, g /= 255, b /= 255;
+					var max = Math.max(r, g, b),
+						min = Math.min(r, g, b);
+					var h, s, l = (max + min) / 2;
+
+					if(max == min) {
+						h = s = 0; // achromatic
+					} else {
+						var d = max - min;
+						s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+						switch(max) {
+							case r:
+								h = (g - b) / d + (g < b ? 6 : 0);
+								break;
+							case g:
+								h = (b - r) / d + 2;
+								break;
+							case b:
+								h = (r - g) / d + 4;
+								break;
+						}
+						h /= 6;
+					}
+					return [Math.round(h*360), (s*100).toFixed(2)+'%', (l*100).toFixed(2)+'%'];
+				}
+			}
+		</script>-->
+	</body>
+
+</html>
