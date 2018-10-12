@@ -30,14 +30,14 @@
 					c.width = image.width;
 					c.height = image.height;
 					ctx.drawImage(this, 0, 0);
-					
+					//获取所有色素，并比较左右相邻色相亮度
 					for(var row = 0; row < c.height; row++) {
 						for(var col = 1; col < c.width; col++) {
 							var pixel1 = ctx.getImageData(col, row, 1, 1).data;
 							var hsl1 = rgbToHsl(...pixel1);
 							var pixel2 = ctx.getImageData(col-1, row, 1, 1).data;
 							var hsl2 = rgbToHsl(...pixel2);
-							if(Math.abs(parseFloat(hsl2[2])-parseFloat(hsl1[2]))>20) {
+							if(Math.abs(parseFloat(hsl2[2])-parseFloat(hsl1[2]))>20) { //亮度差20
 								xArr.push(col);
 							}
 						}
@@ -51,7 +51,7 @@
 						}
 					}
 				}
-		
+				//点击显示颜色
 				c.onclick = function(e) {
 					var x = e.clientX,
 						y = e.clientY,

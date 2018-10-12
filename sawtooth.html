@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>canvas 图片锯齿</title>
+		<style type="text/css">
+			body {
+				background: #D3D3D3;
+			}
+			canvas {
+				border: 1px solid;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="MyCanvas">
+			
+		</canvas>
+		<script type="text/javascript">
+			var c = document.getElementById("MyCanvas"),
+				cxt = c.getContext("2d"),
+				image = new Image();
+			var r = 5;//锯齿半径
+			image.src = "http://placeimg.com/200/400/any/sepia";
+			image.onload = function() {
+				c.width = image.width;
+				c.height = image.height;
+				cxt.drawImage(this, 0, 0);
+				cxt.globalCompositeOperation = 'xor';
+				//上部
+				for(var i=r*2;i<c.width-r;i+=r*4) {
+					drawSawtooth(i,0,r,1);
+				}
+				//下部
+				for(var i=r*2;i<c.width-r;i+=r*4) {
+					drawSawtooth(i,c.height,r,0);
+				}
+			}
+			function drawSawtooth(x,y,r,d) { //d:方向
+				cxt.fillStyle='rgb(0,0,0)';
+				cxt.beginPath();
+				if(d==1) {
+					cxt.arc(x,y,r,Math.PI,0,true);
+				}else {
+					cxt.arc(x,y,r,0,Math.PI,true);
+				}
+				cxt.closePath();
+				cxt.fill();
+			}
+		</script>
+	</body>
+
+</html>
